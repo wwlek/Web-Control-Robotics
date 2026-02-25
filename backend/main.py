@@ -44,8 +44,8 @@ def log_power(data: PowerData):
     power_logs_memory.append(new_entry)
     
     # Keep the list from getting too huge and crashing the laptop
-    if len(power_logs_memory) > 50:
-        power_logs_memory.pop(0) # Remove the oldest entry
+    if len(power_logs_memory) > 400:
+        power_logs_memory.pop(0)
         
     print(f"[{current_time}] Cat {data.cat_id} is using {data.power}mA")
     return {"status": "success"}
@@ -57,7 +57,7 @@ def log_power(data: PowerData):
 def get_chart_data():
     # Just return our temporary RAM list!
     # We reverse it so the newest data is at the top, just like the SQL query did.
-    return list(reversed(power_logs_memory))[:20]
+    return list(reversed(power_logs_memory))[:80]
 
 # ==========================================
 # ENDPOINT 3: Frontend triggers a dance

@@ -79,79 +79,66 @@ document.getElementById('all-dance')?.addEventListener('click', () => {
 });
 
 // ==========================================
-// 3. CHART.JS INDIVIDUAL MINI-GRAPHS
+// 3. CHART.JS MULTI-CAT GRAPH
 // ==========================================
-const catCharts = {}; // This will hold our 4 separate charts
-const chartColors = { 1: '#ef4444', 2: '#facc15', 3: '#22c55e', 4: '#3b82f6' };
+const ctx = document.getElementById('powerChart');
+if(ctx) {
+  const powerChart = new Chart(ctx.getContext('2d'), {
+      type: 'line',
+      data: {
+          labels: [], // Time (X-axis)
+          datasets: [
+              { label: 'Cat 1', data: [], borderColor: '#ef4444', tension: 0.3 }, // Red
+              { label: 'Cat 2', data: [], borderColor: '#facc15', tension: 0.3 }, // Yellow
+              { label: 'Cat 3', data: [], borderColor: '#22c55e', tension: 0.3 }, // Green
+              { label: 'Cat 4', data: [], borderColor: '#3b82f6', tension: 0.3 }  // Blue
+          ]
+      },
+      options: {
+          responsive: true,               // Make it resize
+          maintainAspectRatio: false,     // THE MAGIC LINE: Stop forcing a square shape!
+          animation: false, 
+          scales: { y: { beginAtZero: true, max: 600 } }
+      }
+  });
 
-// Initialize a mini-chart for each of the 4 cats
-[1, 2, 3, 4].forEach(id => {
-    const ctx = document.getElementById(`chart-cat-${id}`);
-    if (ctx) {
-        catCharts[id] = new Chart(ctx.getContext('2d'), {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    data: [],
-                    borderColor: chartColors[id],
-                    backgroundColor: chartColors[id] + '33', // Adds transparency to the fill
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 0 // Hides the ugly dots for a clean "sparkline" look
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: false,
-                plugins: {
-                    legend: { display: false } // Hide the legend to save space
-                },
-                scales: {
-                    x: { display: false }, // Hide the time labels on the bottom to save space
-                    y: { beginAtZero: true, max: 600, ticks: { maxTicksLimit: 4 } }
-                }
-            }
-        });
-    }
-});
+  // Pull data from Python every 1 second
+  setInterval(async () => {
+      try {
+          let response = await fetch(`${BACKEND_URL}/get-chart-data`);
+          let data = await response.json(); // This is the list of 80 readings
+          
+          // 1. Get all unique timestamps and sort them chronologically
+          let timeLabels = [...new Set(data.map(row => row.timestamp))].sort();
+          powerChart.data.labels = timeLabels;
 
-// Pull data from Python every 1 second and route it to the correct chart
-setInterval(async () => {
-    try {
-        let response = await fetch(`${BACKEND_URL}/get-chart-data`);
-        let data = await response.json();
-        
-        // Get all unique timestamps chronologically
-        let timeLabels = [...new Set(data.map(row => row.timestamp))].sort();
+          // 2. Create empty arrays for all 4 cats
+          let cat1Data = new Array(timeLabels.length).fill(null);
+          let cat2Data = new Array(timeLabels.length).fill(null);
+          let cat3Data = new Array(timeLabels.length).fill(null);
+          let cat4Data = new Array(timeLabels.length).fill(null);
 
-        // Update each chart with its specific data
-        [1, 2, 3, 4].forEach(id => {
-            if (!catCharts[id]) return;
+          // 3. Sort the data into the correct cat's array, matching the exact timestamp
+          data.forEach(row => {
+              let timeIndex = timeLabels.indexOf(row.timestamp);
+              if (row.cat_id === 1) cat1Data[timeIndex] = row.power_mA;
+              if (row.cat_id === 2) cat2Data[timeIndex] = row.power_mA;
+              if (row.cat_id === 3) cat3Data[timeIndex] = row.power_mA;
+              if (row.cat_id === 4) cat4Data[timeIndex] = row.power_mA;
+          });
 
-            // Create an empty array for this cat's timeline
-            let catData = new Array(timeLabels.length).fill(null);
-            
-            // Fill in the power numbers at the correct time slots
-            data.forEach(row => {
-                if (row.cat_id === id) {
-                    let timeIndex = timeLabels.indexOf(row.timestamp);
-                    catData[timeIndex] = row.power_mA;
-                }
-            });
-
-            // Push the new data to the chart
-            catCharts[id].data.labels = timeLabels;
-            catCharts[id].data.datasets[0].data = catData;
-            catCharts[id].update();
-        });
-        
-    } catch (error) {
-        console.error("Graph Error:", error);
-    }
-}, 1000);
+          // 4. Update the graph datasets
+          powerChart.data.datasets[0].data = cat1Data;
+          powerChart.data.datasets[1].data = cat2Data;
+          powerChart.data.datasets[2].data = cat3Data;
+          powerChart.data.datasets[3].data = cat4Data;
+          
+          powerChart.update();
+      } catch (error) {
+          console.error("Graph Error:", error);
+      }
+  }, 1000);
+}
 
 // Akkuanzeige initialisieren (Kept exactly as you wrote it)
 document.querySelectorAll('.battery').forEach(battery => {
