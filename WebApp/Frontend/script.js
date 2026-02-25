@@ -1,3 +1,6 @@
+const API_BASE_URL = "http://127.0.0.1:5500/backend/main.py";
+// anpassen, falls Backend woanders läuft
+
 document.querySelectorAll('.card').forEach(card => {
   const stopBtn = card.querySelector('.toggle.stop');
   const danceBtn = card.querySelector('.toggle.dance');
@@ -46,9 +49,37 @@ document.getElementById('all-stop')?.addEventListener('click', () => {
   });
 });
 
-document.getElementById('all-dance')?.addEventListener('click', () => {
-  document.querySelectorAll('.card:not(.global-control)').forEach(card => {
+document.querySelectorAll('.card').forEach(card => {
+  const stopBtn = card.querySelector('.toggle.stop');
+  const danceBtn = card.querySelector('.toggle.dance');
+
+  stopBtn.addEventListener('click', () => {
+    const isActive = stopBtn.classList.toggle('active');
+    card.classList.toggle('disabled', isActive);
+
+    if (isActive) {
+      danceBtn.classList.remove('active');
+    }
+  });
+
+  danceBtn.addEventListener('click', async () => {
     if (card.classList.contains('disabled')) return;
-    card.querySelector('.toggle.dance')?.classList.add('active');
+
+    danceBtn.classList.toggle('active');
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/trigger-dance`, {
+        method: "POST"
+      });
+
+      if (!res.ok) {
+        throw new Error("Dance command failed");
+      }
+
+      console.log("Dance command sent successfully");
+    } catch (err) {
+      console.error("Error triggering dance:", err);
+      danceBtn.classList.remove('active');
+    }
   });
 });
