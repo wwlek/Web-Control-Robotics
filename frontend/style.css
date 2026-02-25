@@ -24,9 +24,14 @@ h1 {
   margin-bottom: 24px;
 }
 
+.global-control {
+  border: 1px solid var(--primary);
+  margin-bottom: 24px;
+}
+
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
 }
 
@@ -117,4 +122,22 @@ h1 {
   height: 100%;
   background: #22c55e;
   width: 0%;
+}
+
+.battery-fill.green {
+  background: #22c55e;
+}
+
+.battery-fill.yellow {
+  background: #facc15;
+}
+
+.battery-fill.red {
+  background: #ef4444;
+}
+
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }
