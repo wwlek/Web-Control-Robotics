@@ -19,6 +19,36 @@ document.querySelectorAll('.card').forEach(card => {
 
 // Akkuanzeige initialisieren
 document.querySelectorAll('.battery').forEach(battery => {
-  const level = battery.dataset.level;
-  battery.querySelector('.battery-fill').style.width = level + '%';
+  const level = Number(battery.dataset.level);
+  const fill = battery.querySelector('.battery-fill');
+  const text = battery.querySelector('.battery-text');
+
+  fill.style.width = level + '%';
+  text.textContent = level + '%';
+
+  fill.classList.remove('green', 'yellow', 'red');
+
+  if (level > 60) {
+    fill.classList.add('green');
+  } else if (level > 30) {
+    fill.classList.add('yellow');
+  } else {
+    fill.classList.add('red');
+  }
+});
+
+
+document.getElementById('all-stop')?.addEventListener('click', () => {
+  document.querySelectorAll('.card:not(.global-control)').forEach(card => {
+    card.classList.add('disabled');
+    card.querySelector('.toggle.stop')?.classList.add('active');
+    card.querySelector('.toggle.dance')?.classList.remove('active');
+  });
+});
+
+document.getElementById('all-dance')?.addEventListener('click', () => {
+  document.querySelectorAll('.card:not(.global-control)').forEach(card => {
+    if (card.classList.contains('disabled')) return;
+    card.querySelector('.toggle.dance')?.classList.add('active');
+  });
 });
