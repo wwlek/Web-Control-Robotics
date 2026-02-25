@@ -1,96 +1,71 @@
 import network
 import socket
-import time
+import ujson  # Use ujson for JSON parsing in MicroPython
 from cat_controller import move, stop, dance
 
-SSID = "DancingCats"
-PASSWORD = "Sysk1ng*"
+# Connect WiFi
+nic = network.WLAN(network.WLAN.IF_STA)
+nic.active(True)
+nic.connect('cats-project', '###')
 
-# -----------------------
-# WIFI CONNECTION
-# -----------------------
-def connect_wifi():
-    nic = network.WLAN(network.WLAN.IF_STA)
+while not nic.isconnected():
+    pass
 
-    # Full reset (fixes Wifi Internal State Error)
-    nic.active(False)
-    time.sleep(1)
-    nic.active(True)
-    time.sleep(1)
+print("Connected:", nic.ifconfig())
 
-    if not nic.isconnected():
-        print("Connecting to WiFi...")
-        nic.connect(SSID, PASSWORD)
+# Simple HTTP server
+addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
+s = socket.socket()
+s.bind(addr)
+s.listen(1)
 
-        timeout = 15
-        while not nic.isconnected() and timeout > 0:
-            print("Waiting for connection...")
-            time.sleep(1)
-            timeout -= 1
+print("Listening on", addr)
 
-    if not nic.isconnected():
-        raise RuntimeError("WiFi connection failed")
+while True:
+    cl, addr = s.accept()
+    request = cl.recv(1024).decode()
 
-    print("Connected!")
-    print("IP address:", nic.ifconfig()[0])
-    return nic.ifconfig()[0]
-
-
-# -----------------------
-# START SERVER
-# -----------------------
-def start_server(ip):
-    addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
-    s = socket.socket()
-    s.bind(addr)
-    s.listen(5)
-
-    print("Server running at http://{}".format(ip))
-
-    while True:
+    # POST /move to handle direction: forward, left, right
+    if "POST /move" in request:
         try:
-            cl, addr = s.accept()
-            print("Client connected from", addr)
+            # Extract JSON body (after '\r\n\r\n')
+            body = request.split('\r\n\r\n')[1]
+            data = ujson.loads(body)  # Parse JSON body
 
-            request = cl.recv(1024).decode()
-            print("Request:", request)
+            # Get the direction from the JSON data
+            direction = data.get("direction")
 
-            # --- ROUTES ---
-            if "GET /move/forward" in request:
+            # Call the move function based on the direction
+            if direction == "forward":
                 move("forward")
-
-            elif "GET /move/backward" in request:
-                move("backward")
-
-            elif "GET /move/left" in request:
+            elif direction == "left":
                 move("left")
-
-            elif "GET /move/right" in request:
+            elif direction == "right":
                 move("right")
+            else:
+                # If direction is invalid, return JSON error response
+                cl.send("HTTP/1.1 400 Bad Request\r\nContent-Type: application/json\r\n\r\n{\"error\": \"Invalid direction\"}")
+                cl.close()
+                continue
 
-            elif "GET /stop" in request:
-                stop()
+            # Respond with OK after performing move
+            cl.send("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n{\"status\": \"OK\"}")
+        except (ValueError, KeyError):
+            # In case of error in JSON parsing or missing 'direction', return JSON error response
+            cl.send("HTTP/1.1 400 Bad Request\r\nContent-Type: application/json\r\n\r\n{\"error\": \"Invalid JSON or Missing 'direction'\"}")
+    
+    # POST /stop to handle stop action
+    elif "POST /stop" in request:
+        stop()
+        cl.send("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n{\"status\": \"OK\"}")
+    
+    # POST /dance to handle dance action
+    elif "POST /dance" in request:
+        dance()
+        cl.send("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n{\"status\": \"OK\"}")
+    
+    else:
+        # Default response for unsupported routes or methods (404 Not Found)
+        cl.send("HTTP/1.1 404 Not Found\r\nContent-Type: application/json\r\n\r\n{\"error\": \"Route Not Found\"}")
 
-            elif "GET /dance" in request:
-                dance()
-
-            # --- RESPONSE ---
-            response = """HTTP/1.1 200 OK
-Content-Type: text/plain
-
-OK
-"""
-            cl.send(response)
-
-        except Exception as e:
-            print("Error:", e)
-
-        finally:
-            cl.close()
-
-
-# -----------------------
-# MAIN
-# -----------------------
-ip_address = connect_wifi()
-start_server(ip_address)
+    cl.close()
