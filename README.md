@@ -18,6 +18,12 @@ Cat 3 = 192.168.1.103
 Cat 4 = 192.168.1.104
 
 ## Commands
+
+### fake-esp32s
 python3 fake-esp32.py
+
+### backend service
 uvicorn main:app --host 0.0.0.0 --port 5000 --reload
+
+### frontend service
 python3 -m http.server 8000
