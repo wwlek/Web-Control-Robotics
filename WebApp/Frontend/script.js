@@ -75,7 +75,7 @@ document.getElementById('all-dance')?.addEventListener('click', () => {
     card.querySelector('.toggle.dance')?.classList.add('active');
   });
   // API CALL: This hits the endpoint we already built in Python!
-  sendCommand('/trigger-sync'); 
+  sendCommand('/trigger-dance'); 
 });
 
 // ==========================================
