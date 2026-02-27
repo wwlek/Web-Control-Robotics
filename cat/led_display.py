@@ -20,3 +20,4 @@ class NeoPixelLED:
         time.sleep(delay)
         self.off()
         time.sleep(delay)
+

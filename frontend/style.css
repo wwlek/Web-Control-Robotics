@@ -100,14 +100,6 @@ h1 {
   transition: background 0.2s ease;
 }
 
-.toggle.stop.active {
-  background: var(--danger);
-}
-
-.toggle.dance.active {
-  background: var(--primary);
-}
-
 .battery {
   margin-top: 14px;
   font-size: 14px;
@@ -142,4 +134,13 @@ h1 {
   .grid {
     grid-template-columns: 1fr;
   }
+}
+
+button {
+  cursor: pointer;
+}
+
+button:active {
+  transform: scale(0.96);
+  filter: brightness(70%);
 }

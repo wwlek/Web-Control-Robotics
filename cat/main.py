@@ -1,7 +1,7 @@
 import network
 import socket
 import ujson  # Use ujson for JSON parsing in MicroPython
-from cat_controller import move, stop, dance, get_voltage, get_battery
+from cat_controller import move, dance, get_voltage, get_battery
 
 # Connect WiFi
 nic = network.WLAN(network.WLAN.IF_STA)
@@ -54,11 +54,6 @@ while True:
             # In case of error in JSON parsing or missing 'direction', return JSON error response
             cl.send("HTTP/1.1 400 Bad Request\r\nContent-Type: application/json\r\n\r\n{\"error\": \"Invalid JSON or Missing 'direction'\"}")
     
-    # POST /stop to handle stop action
-    elif "POST /stop" in request:
-        stop()
-        cl.send("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n{\"status\": \"OK\"}")
-    
     # POST /dance to handle dance action
     elif "POST /dance" in request:
         dance()
@@ -82,4 +77,5 @@ while True:
         cl.send("HTTP/1.1 404 Not Found\r\nContent-Type: application/json\r\n\r\n{\"error\": \"Route Not Found\"}")
 
     cl.close()
+
 

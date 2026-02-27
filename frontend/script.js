@@ -14,33 +14,12 @@ function updateBattery(card, level) {
 
 // 1. CAT CONTROL LOGIC
 document.querySelectorAll('.card').forEach(card => {
-  const stopBtn = card.querySelector('.toggle.stop');
   const danceBtn = card.querySelector('.toggle.dance');
   const catId = card.dataset.cat;
-
-  // Stop button
-  stopBtn?.addEventListener('click', async () => {
-    const isActive = stopBtn.classList.toggle('active');
-    card.classList.toggle('disabled', isActive);
-    if (isActive) danceBtn?.classList.remove('active');
-
-    if (!catId || card.classList.contains('disabled')) return;
-
-    try {
-      const res = await fetch(`${API_BASE_URL}/stop`, {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cat: catId })
-      });
-      if (!res.ok) throw new Error(`Stop failed for cat ${catId}`);
-      console.log(`Stop sent for cat ${catId}`);
-    } catch(err) { console.error(err); }
-  });
 
   // Dance button
   danceBtn?.addEventListener('click', async () => {
     if (card.classList.contains('disabled')) return;
-    danceBtn.classList.toggle('active');
 
     if (!catId) return;
     try {
@@ -77,32 +56,8 @@ document.querySelectorAll('.card').forEach(card => {
   });
 });
 
-// Global stop
-document.getElementById('all-stop')?.addEventListener('click', async () => {
-  document.querySelectorAll('.card:not(.global-control)').forEach(card => {
-    card.classList.add('disabled');
-    card.querySelector('.toggle.stop')?.classList.add('active');
-    card.querySelector('.toggle.dance')?.classList.remove('active');
-  });
-
-  try {
-    const res = await fetch(`${API_BASE_URL}/stop`, {
-      method: "POST",
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cat: "all" })
-    });
-    if (!res.ok) throw new Error("Global stop failed");
-    console.log("Global stop sent");
-  } catch(err) { console.error(err); }
-});
-
 // Global dance
 document.getElementById('all-dance')?.addEventListener('click', async () => {
-  document.querySelectorAll('.card:not(.global-control)').forEach(card => {
-    if (card.classList.contains('disabled')) return;
-    card.querySelector('.toggle.dance')?.classList.add('active');
-  });
-
   try {
     const res = await fetch(`${API_BASE_URL}/dance`, {
       method: "POST",
@@ -111,6 +66,19 @@ document.getElementById('all-dance')?.addEventListener('click', async () => {
     });
     if (!res.ok) throw new Error("Global dance failed");
     console.log("Global dance sent");
+  } catch(err) { console.error(err); }
+});
+
+// Global wave
+document.getElementById('all-wave')?.addEventListener('click', async () => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/wave`, {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cat: "all" })
+    });
+    if (!res.ok) throw new Error("Global wave failed");
+    console.log("Global wave sent");
   } catch(err) { console.error(err); }
 });
 

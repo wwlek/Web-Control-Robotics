@@ -45,10 +45,10 @@ class MoveRequest(BaseModel):
     direction: Direction
     cat: str
 
-class StopRequest(BaseModel):
-    cat: str
-
 class DanceRequest(BaseModel):
+    cat: str
+    
+class WaveRequest(BaseModel):
     cat: str
 
 # Helper: Forward POST to cats
@@ -79,17 +79,6 @@ async def move(request: MoveRequest):
     result = await forward_post(cat_ip, "/move", {"direction": request.direction})
     return {"status": "forwarded", "target_response": result}
 
-@app.post("/stop")
-async def stop(request: StopRequest):
-    targets = CAT_IPS.keys() if request.cat == "all" else [request.cat]
-    results = []
-    for cat_id in targets:
-        cat_ip = CAT_IPS.get(cat_id)
-        if not cat_ip: continue
-        res = await forward_post(cat_ip, "/stop")
-        results.append({"cat": cat_id, "response": res})
-    return {"status": "forwarded", "target_responses": results}
-
 @app.post("/dance")
 async def dance(request: DanceRequest):
     targets = CAT_IPS.keys() if request.cat == "all" else [request.cat]
@@ -98,6 +87,17 @@ async def dance(request: DanceRequest):
         cat_ip = CAT_IPS.get(cat_id)
         if not cat_ip: continue
         res = await forward_post(cat_ip, "/dance")
+        results.append({"cat": cat_id, "response": res})
+    return {"status": "forwarded", "target_responses": results}
+
+@app.post("/wave")
+async def stop(request: WaveRequest):
+    targets = CAT_IPS.keys() if request.cat == "all" else [request.cat]
+    results = []
+    for cat_id in targets:
+        cat_ip = CAT_IPS.get(cat_id)
+        if not cat_ip: continue
+        res = await forward_post(cat_ip, "/wave")
         results.append({"cat": cat_id, "response": res})
     return {"status": "forwarded", "target_responses": results}
 
