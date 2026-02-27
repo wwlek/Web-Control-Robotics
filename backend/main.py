@@ -6,7 +6,6 @@ import httpx
 from contextlib import asynccontextmanager
 import asyncio
 
-# Cat IP configuration
 CAT_IPS = {
     "1": "http://192.168.1.101",
     "2": "http://192.168.1.102",
@@ -14,14 +13,11 @@ CAT_IPS = {
     "4": "http://192.168.1.104",
 }
 
-# FastAPI setup with async client
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.client = httpx.AsyncClient(timeout=httpx.Timeout(5.0))
-    # Start polling task
     app.state.poll_task = asyncio.create_task(update_cat_status())
     yield
-    # Cleanup
     app.state.poll_task.cancel()
     await app.state.client.aclose()
 
@@ -34,7 +30,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Enums and Models
 class Direction(str, Enum):
     forward = "forward"
     backward = "backward"
@@ -51,7 +46,6 @@ class DanceRequest(BaseModel):
 class WaveRequest(BaseModel):
     cat: str
 
-# Helper: Forward POST to cats
 async def forward_post(cat_ip: str, path: str, payload: dict | None = None):
     try:
         response = await app.state.client.post(f"{cat_ip}{path}", json=payload)
@@ -70,7 +64,6 @@ async def forward_get(cat_ip: str, path: str):
     except Exception as e:
         raise HTTPException(status_code=502, detail=str(e))
     
-# Command endpoints
 @app.post("/move")
 async def move(request: MoveRequest):
     cat_ip = CAT_IPS.get(request.cat)
@@ -82,49 +75,49 @@ async def move(request: MoveRequest):
 @app.post("/dance")
 async def dance(request: DanceRequest):
     targets = CAT_IPS.keys() if request.cat == "all" else [request.cat]
-    results = []
 
-    for cat_id in targets:
+    async def call_cat(cat_id):
         cat_ip = CAT_IPS.get(cat_id)
         if not cat_ip:
-            continue
-
+            return None
         try:
             res = await forward_post(cat_ip, "/dance")
-            results.append({"cat": cat_id, "response": res})
+            return {"cat": cat_id, "response": res}
         except Exception:
-            # Ignore unreachable cats
-            continue
+            return None
+
+    results = await asyncio.gather(*(call_cat(cat_id) for cat_id in targets))
+    results = [r for r in results if r]
 
     return {
         "status": "forwarded" if results else "no reachable cats",
         "target_responses": results
     }
-    
-@app.post("/wave")
-async def stop(request: WaveRequest):
-    targets = CAT_IPS.keys() if request.cat == "all" else [request.cat]
-    results = []
 
-    for cat_id in targets:
+
+@app.post("/wave")
+async def wave(request: WaveRequest):
+    targets = CAT_IPS.keys() if request.cat == "all" else [request.cat]
+
+    async def call_cat(cat_id):
         cat_ip = CAT_IPS.get(cat_id)
         if not cat_ip:
-            continue
-
+            return None
         try:
             res = await forward_post(cat_ip, "/wave")
-            results.append({"cat": cat_id, "response": res})
+            return {"cat": cat_id, "response": res}
         except Exception:
-            # Ignore unreachable cats
-            continue
+            return None
+
+    results = await asyncio.gather(*(call_cat(cat_id) for cat_id in targets))
+    results = [r for r in results if r]
 
     return {
         "status": "forwarded" if results else "no reachable cats",
         "target_responses": results
     }
 
-# Cat status storage
-MAX_POINTS = 100
+MAX_POINTS = 30
 
 cat_status = {
     cat_id: {"voltage": [0] * MAX_POINTS, "battery": 0}
@@ -142,15 +135,13 @@ async def update_cat_status():
                 cat_status[cat_id]["voltage"] = (
                     cat_status[cat_id]["voltage"] + [v]
                 )[-MAX_POINTS:]
-                cat_status[cat_id]["battery"] = status.get("battery", 100)
+                cat_status[cat_id]["battery"] = status.get("battery", 0)
             except Exception:
                 pass
         await asyncio.sleep(1)
 
-# REST endpoint for frontend polling
 @app.get("/status")
 async def get_status():
-    # Return current cat status as JSON
     return {
         cat_id: {"voltage": status["voltage"], "battery": status["battery"]}
         for cat_id, status in cat_status.items()

@@ -12,7 +12,7 @@ function updateBattery(card, level) {
   else fill.classList.add('red');
 }
 
-// 1. CAT CONTROL LOGIC
+// Cat control logic
 document.querySelectorAll('.card').forEach(card => {
   const waveBtn = card.querySelector('.btn.wave');
   const danceBtn = card.querySelector('.btn.dance');
@@ -99,15 +99,15 @@ document.getElementById('all-wave')?.addEventListener('click', async () => {
   } catch(err) { console.error(err); }
 });
 
-// 2. BATTERY INIT
+// Battery init
 document.querySelectorAll('.battery').forEach(battery => {
   const card = battery.closest('.card');
   const level = Number(battery.dataset.level);
   updateBattery(card, level);
 });
 
-// 3. CHARTS
-const MAX_POINTS = 100;
+// Charts
+const MAX_POINTS = 30;
 const Y_MIN = 0;
 const Y_MAX = 7;
 
@@ -155,29 +155,27 @@ const LOW_VOLTAGE_THRESHOLD = 7.2;
   });
 });
 
-// 4. POLLING CAT STATUS
+// Polling cat status
 async function pollStatus() {
   try {
     const res = await fetch(`${API_BASE_URL}/status`);
     if (!res.ok) throw new Error("Failed to fetch status");
-    const data = await res.json(); // { "1": {voltage:[...], battery:...}, ... }
+    const data = await res.json();
 
     Object.entries(data).forEach(([catId, status]) => {
       const id = Number(catId);
       const values = status.voltage || [0,0,0,0,0];
-      const batteryLevel = status.battery ?? 100;
+      const batteryLevel = status.battery ?? 0;
 
-      // ----- Chart update -----
       const chart = catCharts[id];
       if (chart) {
         const dataset = chart.data.datasets[0].data;
 
-        // push newest value (last from backend)
         const latest = values[values.length - 1] ?? 0;
 
         dataset.push(latest);
         if (dataset.length > MAX_POINTS) {
-          dataset.shift(); // keep only last 30 sec
+          dataset.shift();
         }
 
         const isLow = latest < LOW_VOLTAGE_THRESHOLD;
@@ -186,7 +184,6 @@ async function pollStatus() {
         chart.update('none');
       }
 
-      // ----- Battery update -----
       const card = document.querySelector(`.card[data-cat="${id}"]`);
       if (card) updateBattery(card, batteryLevel);
     });
@@ -194,9 +191,8 @@ async function pollStatus() {
   } catch(err) {
     console.error("Error polling status:", err);
   } finally {
-    setTimeout(pollStatus, 1000); // Poll every second
+    setTimeout(pollStatus, 1000);
   }
 }
 
-// Start polling
 pollStatus();
