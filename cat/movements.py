@@ -1,4 +1,4 @@
-# movements.py
+#movements.py
 
 #// Rotors
 from machine import I2C
@@ -112,6 +112,7 @@ def updateLegSit(imLegIndex, imAnimationIndex):
     
 def sitUpAndWave():
     currentStep = 0
+    totalSteps = 0
     while (currentStep <= 3): #// Sit Up Animation
         
         for legIndex in range(len(upperSitSteps)):
@@ -120,16 +121,16 @@ def sitUpAndWave():
         time.sleep(0.35)
         currentStep += 1
     
-    while (True):
+    while (totalSteps < 12):
         if currentStep == 3:
             currentStep = 2
         else:
             currentStep = 3
         for legIndex in range(len(upperSitSteps)):
             updateLegSit(legIndex, currentStep)
-            
+        
+        totalSteps += 1
         time.sleep(0.5)
-    
     
 def walk():
     currentStep = 0
@@ -165,10 +166,11 @@ def updateLegForDance(imLegIndex, imAnimationIndex):
             
 def rotateRight():
     currentStep = 0
+    totalSteps = 0
     updateLeg(1, 2) # Right Front
     updateLeg(3, 2) # Right Back
         
-    while (True):
+    while (totalSteps < 4):
         for legIndex in range(0, 3, 2):
             animationIndex = currentStep #// Diagonal Half Step
             print(legIndex)
@@ -180,13 +182,15 @@ def rotateRight():
         currentStep += 1;
         if currentStep == 4:
             currentStep = 0
+            totalSteps += 1
             
 def rotateLeft():
     currentStep = 0
+    totalSteps = 0
     updateLeg(0, 2) # Left Front
     updateLeg(2, 2) # Left Back
         
-    while (True):
+    while (totalSteps < 4):
         for legIndex in range(1, 4, 2):
             animationIndex = currentStep #// Diagonal Half Step
             if legIndex == 3:
@@ -197,6 +201,7 @@ def rotateLeft():
         currentStep += 1;
         if currentStep == 4:
             currentStep = 0
+            totalSteps += 1
         
 def dance():
     currentStep = 0
@@ -222,7 +227,6 @@ def dance():
         if currentStep == 2:
             currentStep = 0
  
-
 def legLerpDance(imLegIndex, imAnimationIndexStart, imAnimationIndexTarget, percentage):
     targetAngle = lerp(lowerLegDanceSteps[imLegIndex][imAnimationIndexStart], lowerLegDanceSteps[imLegIndex][imAnimationIndexTarget], percentage)
     pwm.servo_set_angle_custom(imLegIndex + 4, targetAngle, pmwLowerBand, pmwUpperBand)
@@ -237,7 +241,7 @@ def smoothDance():
     
     danceCount = 0
     
-    while (danceCount < 1000):   
+    while (danceCount < 900):   
         
         for legIndex in range(len(upperLegDanceSteps)):
             
@@ -262,3 +266,7 @@ def smoothDance():
 #sitUpAndWave()
 #rotateLeft()
 #dance()
+#rotateRight()
+#sitUpAndWave()
+
+

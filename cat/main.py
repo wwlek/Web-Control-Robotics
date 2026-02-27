@@ -1,7 +1,7 @@
 import network
 import socket
 import ujson  # Use ujson for JSON parsing in MicroPython
-from cat_controller import move, dance, get_voltage, get_battery
+from cat_controller import move, dance, wave, get_voltage, get_battery
 
 # Connect WiFi
 nic = network.WLAN(network.WLAN.IF_STA)
@@ -57,6 +57,10 @@ while True:
     # POST /dance to handle dance action
     elif "POST /dance" in request:
         dance()
+        cl.send("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n{\"status\": \"OK\"}")
+    
+    elif "POST /wave" in request:
+        wave()
         cl.send("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n{\"status\": \"OK\"}")
     
     # GET /status to return voltage and battery

@@ -83,26 +83,53 @@ async def move(request: MoveRequest):
 async def dance(request: DanceRequest):
     targets = CAT_IPS.keys() if request.cat == "all" else [request.cat]
     results = []
+
     for cat_id in targets:
         cat_ip = CAT_IPS.get(cat_id)
-        if not cat_ip: continue
-        res = await forward_post(cat_ip, "/dance")
-        results.append({"cat": cat_id, "response": res})
-    return {"status": "forwarded", "target_responses": results}
+        if not cat_ip:
+            continue
 
+        try:
+            res = await forward_post(cat_ip, "/dance")
+            results.append({"cat": cat_id, "response": res})
+        except Exception:
+            # Ignore unreachable cats
+            continue
+
+    return {
+        "status": "forwarded" if results else "no reachable cats",
+        "target_responses": results
+    }
+    
 @app.post("/wave")
 async def stop(request: WaveRequest):
     targets = CAT_IPS.keys() if request.cat == "all" else [request.cat]
     results = []
+
     for cat_id in targets:
         cat_ip = CAT_IPS.get(cat_id)
-        if not cat_ip: continue
-        res = await forward_post(cat_ip, "/wave")
-        results.append({"cat": cat_id, "response": res})
-    return {"status": "forwarded", "target_responses": results}
+        if not cat_ip:
+            continue
+
+        try:
+            res = await forward_post(cat_ip, "/wave")
+            results.append({"cat": cat_id, "response": res})
+        except Exception:
+            # Ignore unreachable cats
+            continue
+
+    return {
+        "status": "forwarded" if results else "no reachable cats",
+        "target_responses": results
+    }
 
 # Cat status storage
-cat_status = {cat_id: {"voltage": [0,0,0,0,0], "battery": 100} for cat_id in CAT_IPS}
+MAX_POINTS = 100
+
+cat_status = {
+    cat_id: {"voltage": [0] * MAX_POINTS, "battery": 0}
+    for cat_id in CAT_IPS
+}
 
 async def update_cat_status():
     print("update_cat_status task started")
@@ -112,7 +139,9 @@ async def update_cat_status():
                 print(f"Polling cat {cat_id} at {cat_ip}/status")
                 status = await forward_get(cat_ip, "/status")
                 v = status.get("voltage", 0)
-                cat_status[cat_id]["voltage"] = (cat_status[cat_id]["voltage"] + [v])[-5:]
+                cat_status[cat_id]["voltage"] = (
+                    cat_status[cat_id]["voltage"] + [v]
+                )[-MAX_POINTS:]
                 cat_status[cat_id]["battery"] = status.get("battery", 100)
             except Exception:
                 pass

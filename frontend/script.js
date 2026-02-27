@@ -14,7 +14,8 @@ function updateBattery(card, level) {
 
 // 1. CAT CONTROL LOGIC
 document.querySelectorAll('.card').forEach(card => {
-  const danceBtn = card.querySelector('.toggle.dance');
+  const waveBtn = card.querySelector('.btn.wave');
+  const danceBtn = card.querySelector('.btn.dance');
   const catId = card.dataset.cat;
 
   // Dance button
@@ -30,6 +31,22 @@ document.querySelectorAll('.card').forEach(card => {
       });
       if (!res.ok) throw new Error(`Dance failed for cat ${catId}`);
       console.log(`Dance sent for cat ${catId}`);
+    } catch(err) { console.error(err); }
+  });
+
+  // Wave button
+  waveBtn?.addEventListener('click', async () => {
+    if (card.classList.contains('disabled')) return;
+
+    if (!catId) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/wave`, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cat: catId })
+      });
+      if (!res.ok) throw new Error(`Wave failed for cat ${catId}`);
+      console.log(`Wave sent for cat ${catId}`);
     } catch(err) { console.error(err); }
   });
 
@@ -90,6 +107,10 @@ document.querySelectorAll('.battery').forEach(battery => {
 });
 
 // 3. CHARTS
+const MAX_POINTS = 100;
+const Y_MIN = 0;
+const Y_MAX = 7;
+
 const catCharts = {};
 const chartColors = { 1:'#ef4444',2:'#facc15',3:'#22c55e',4:'#3b82f6' };
 const LOW_VOLTAGE_THRESHOLD = 7.2;
@@ -98,23 +119,38 @@ const LOW_VOLTAGE_THRESHOLD = 7.2;
 [1,2,3,4].forEach(id => {
   const canvas = document.getElementById(`chart-cat-${id}`);
   if (!canvas) return;
+
   catCharts[id] = new Chart(canvas.getContext('2d'), {
     type: 'line',
-    data: { labels:[1,2,3,4,5], datasets:[{
-      data:[0,0,0,0,0],
-      borderColor: chartColors[id],
-      backgroundColor: chartColors[id]+'22',
-      borderWidth:2,
-      fill:true,
-      tension:0.35,
-      pointRadius:0
-    }]},
+    data: {
+      labels: Array(MAX_POINTS).fill(''),
+      datasets: [{
+        data: Array(MAX_POINTS).fill(null),
+        borderColor: chartColors[id],
+        backgroundColor: chartColors[id]+'22',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.35,
+        pointRadius: 0
+      }]
+    },
     options: {
-      responsive:true,
-      maintainAspectRatio:false,
-      animation:false,
-      plugins:{legend:{display:false}},
-      scales:{x:{display:false}, y:{beginAtZero:false,ticks:{maxTicksLimit:4}}}
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: {
+          display: false,
+          min: 0,
+          max: MAX_POINTS - 1
+        },
+        y: {
+          min: Y_MIN,
+          max: Y_MAX,
+          ticks: { stepSize: 1 }
+        }
+      }
     }
   });
 });
@@ -134,12 +170,19 @@ async function pollStatus() {
       // ----- Chart update -----
       const chart = catCharts[id];
       if (chart) {
-        chart.data.datasets[0].data = values;
-        const latest = values[values.length-1] ?? 0;
+        const dataset = chart.data.datasets[0].data;
+
+        // push newest value (last from backend)
+        const latest = values[values.length - 1] ?? 0;
+
+        dataset.push(latest);
+        if (dataset.length > MAX_POINTS) {
+          dataset.shift(); // keep only last 30 sec
+        }
+
         const isLow = latest < LOW_VOLTAGE_THRESHOLD;
         chart.data.datasets[0].borderColor = isLow ? '#ef4444' : chartColors[id];
-        chart.data.datasets[0].backgroundColor = (isLow ? '#ef4444' : chartColors[id])+'22';
-        smoothScale(chart, values);
+        chart.data.datasets[0].backgroundColor = (isLow ? '#ef4444' : chartColors[id]) + '22';
         chart.update('none');
       }
 
@@ -153,16 +196,6 @@ async function pollStatus() {
   } finally {
     setTimeout(pollStatus, 1000); // Poll every second
   }
-}
-
-// Smooth Y scale helper
-function smoothScale(chart, values) {
-  const min = Math.min(...values), max = Math.max(...values), padding=0.1;
-  const targetMin = min-padding, targetMax = max+padding;
-  const currentMin = chart.options.scales.y.min ?? targetMin;
-  const currentMax = chart.options.scales.y.max ?? targetMax;
-  chart.options.scales.y.min = currentMin + (targetMin-currentMin)*0.2;
-  chart.options.scales.y.max = currentMax + (targetMax-currentMax)*0.2;
 }
 
 // Start polling
