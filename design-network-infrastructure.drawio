@@ -1,0 +1,49 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:147.0) Gecko/20100101 Firefox/147.0" version="29.5.6">
+  <diagram name="Seite-1" id="gWLA6S3P5cTF6B7RxcGt">
+    <mxGraphModel dx="951" dy="487" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="MeHJAaaaCvN08UlJDj_9-19" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;dashed=1;dashPattern=8 8;" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="310" width="790" x="30" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="MeHJAaaaCvN08UlJDj_9-23" edge="1" parent="1" source="MeHJAaaaCvN08UlJDj_9-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;endArrow=none;endFill=0;" target="MeHJAaaaCvN08UlJDj_9-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="MeHJAaaaCvN08UlJDj_9-1" parent="1" style="image;html=1;image=img/lib/clip_art/computers/Server_128x128.png" value="&lt;div&gt;Server&lt;/div&gt;&lt;div&gt;(WebApp + Backend)&lt;/div&gt;&lt;div&gt;192.168.1.10&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="80" x="80" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="MeHJAaaaCvN08UlJDj_9-27" edge="1" parent="1" source="MeHJAaaaCvN08UlJDj_9-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;endArrow=none;endFill=0;" target="MeHJAaaaCvN08UlJDj_9-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="MeHJAaaaCvN08UlJDj_9-29" edge="1" parent="1" source="MeHJAaaaCvN08UlJDj_9-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;endArrow=none;endFill=0;" target="MeHJAaaaCvN08UlJDj_9-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="MeHJAaaaCvN08UlJDj_9-2" parent="1" style="image;html=1;image=img/lib/clip_art/networking/Wireless_Router_N_128x128.png" value="&lt;div&gt;Router&lt;/div&gt;&lt;div&gt;Offline Wi-Fi Network&lt;/div&gt;&lt;div&gt;192.168.1.1&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="80" x="333" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="MeHJAaaaCvN08UlJDj_9-10" parent="1" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#DD344C;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.robotics;" value="&lt;div&gt;ESP32 Cat 1&lt;/div&gt;&lt;div&gt;192.168.1.101&lt;/div&gt;" vertex="1">
+          <mxGeometry height="78" width="78" x="560" y="291" as="geometry" />
+        </mxCell>
+        <mxCell id="MeHJAaaaCvN08UlJDj_9-16" parent="1" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#DD344C;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.robotics;" value="&lt;div&gt;ESP32 Cat 4&lt;/div&gt;&lt;div&gt;192.168.1.104&lt;/div&gt;" vertex="1">
+          <mxGeometry height="78" width="78" x="678" y="411" as="geometry" />
+        </mxCell>
+        <mxCell id="MeHJAaaaCvN08UlJDj_9-17" parent="1" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#DD344C;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.robotics;" value="&lt;div&gt;ESP32 Cat 2&lt;/div&gt;&lt;div&gt;192.168.1.102&lt;/div&gt;" vertex="1">
+          <mxGeometry height="78" width="78" x="678" y="291" as="geometry" />
+        </mxCell>
+        <mxCell id="MeHJAaaaCvN08UlJDj_9-18" parent="1" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#DD344C;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.robotics;" value="&lt;div&gt;ESP32 Cat 3&lt;/div&gt;&lt;div&gt;192.168.1.103&lt;/div&gt;" vertex="1">
+          <mxGeometry height="78" width="78" x="560" y="411" as="geometry" />
+        </mxCell>
+        <mxCell id="MeHJAaaaCvN08UlJDj_9-22" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Wireless Local Area Network" vertex="1">
+          <mxGeometry height="30" width="175" x="326" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="MeHJAaaaCvN08UlJDj_9-28" edge="1" parent="1" source="MeHJAaaaCvN08UlJDj_9-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;dashPattern=8 8;endArrow=none;endFill=0;" target="MeHJAaaaCvN08UlJDj_9-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="MeHJAaaaCvN08UlJDj_9-30" edge="1" parent="1" source="MeHJAaaaCvN08UlJDj_9-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;dashPattern=8 8;endArrow=none;endFill=0;" target="MeHJAaaaCvN08UlJDj_9-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
